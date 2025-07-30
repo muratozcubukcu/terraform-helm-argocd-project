@@ -1,0 +1,14 @@
+{{- if .Values.app.configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "backend.fullname" . }}-app-config
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+    component: app
+data:
+  {{- range $key, $value := .Values.app.configMap.data }}
+  {{ $key }}: |
+    {{- $value | nindent 4 }}
+  {{- end }}
+{{- end }} 

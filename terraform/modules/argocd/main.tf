@@ -15,30 +15,7 @@ terraform {
   }
 }
 
-# Variables
-variable "namespace" {
-  description = "Namespace for ArgoCD"
-  type        = string
-  default     = "argocd"
-}
 
-variable "labels" {
-  description = "Labels to apply to resources"
-  type        = map(string)
-  default     = {}
-}
-
-variable "version" {
-  description = "ArgoCD version to install"
-  type        = string
-  default     = "5.51.6"
-}
-
-variable "values" {
-  description = "Additional Helm values for ArgoCD"
-  type        = string
-  default     = ""
-}
 
 # Create ArgoCD namespace
 resource "kubernetes_namespace" "argocd" {
@@ -53,7 +30,7 @@ resource "helm_release" "argocd" {
   name       = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
-  version    = var.version
+  version    = var.argocd_version
   namespace  = kubernetes_namespace.argocd.metadata[0].name
 
   values = [

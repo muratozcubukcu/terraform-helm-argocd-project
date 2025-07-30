@@ -30,24 +30,7 @@ provider "kubectl" {
   config_path = "~/.kube/config"
 }
 
-# Variables
-variable "project_name" {
-  description = "Name of the project"
-  type        = string
-  default     = "my-project"
-}
 
-variable "environment" {
-  description = "Environment name"
-  type        = string
-  default     = "dev"
-}
-
-variable "domain_name" {
-  description = "Domain name for the application"
-  type        = string
-  default     = "example.com"
-}
 
 # Local values
 locals {

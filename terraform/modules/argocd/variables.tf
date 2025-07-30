@@ -10,7 +10,7 @@ variable "labels" {
   default     = {}
 }
 
-variable "version" {
+variable "argocd_version" {
   description = "ArgoCD version to install"
   type        = string
   default     = "5.51.6"

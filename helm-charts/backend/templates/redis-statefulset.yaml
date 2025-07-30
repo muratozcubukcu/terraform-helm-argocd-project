@@ -143,7 +143,6 @@ data:
     tcp-backlog 511
     unixsocket /tmp/redis.sock
     unixsocketperm 700
-    datadir /data
     syslog-enabled no
     syslog-ident redis
     syslog-facility local0

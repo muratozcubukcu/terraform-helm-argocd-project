@@ -51,13 +51,13 @@ resource "kubernetes_namespace" "main" {
 }
 
 # ArgoCD installation
-module "argocd" {
-  source = "../../modules/argocd"
-  
-  namespace   = "argocd"
-  labels      = local.labels
-  domain_name = var.domain_name
-}
+# module "argocd" {
+#   source = "../../modules/argocd"
+#   
+#   namespace   = "argocd"
+#   labels      = local.labels
+#   domain_name = var.domain_name
+# }
 
 # Storage classes for stateful applications
 resource "kubernetes_storage_class" "fast_ssd" {
@@ -96,13 +96,13 @@ output "namespace" {
   value       = kubernetes_namespace.main.metadata[0].name
 }
 
-output "argocd_admin_password" {
-  description = "ArgoCD admin password"
-  value       = module.argocd.admin_password
-  sensitive   = true
-}
+# output "argocd_admin_password" {
+#   description = "ArgoCD admin password"
+#   value       = module.argocd.admin_password
+#   sensitive   = true
+# }
 
-output "argocd_server_url" {
-  description = "ArgoCD server URL"
-  value       = module.argocd.server_url
-} 
+# output "argocd_server_url" {
+#   description = "ArgoCD server URL"
+#   value       = module.argocd.server_url
+# } 

@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/your-repo
+    repoURL: https://github.com/muratozcubukcu/terraform-helm-argocd-project
     targetRevision: main
     path: helm-charts/frontend
   destination:

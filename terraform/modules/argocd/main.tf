@@ -148,7 +148,7 @@ resource "kubectl_manifest" "backend_app" {
     spec = {
       project = "default"
       source = {
-        repoURL        = "https://github.com/your-org/your-repo"
+        repoURL        = "https://github.com/muratozcubukcu/terraform-helm-argocd-project"
         targetRevision = "main"
         path          = "helm-charts/backend"
       }
@@ -183,7 +183,7 @@ resource "kubectl_manifest" "frontend_app" {
     spec = {
       project = "default"
       source = {
-        repoURL        = "https://github.com/your-org/your-repo"
+        repoURL        = "https://github.com/muratozcubukcu/terraform-helm-argocd-project"
         targetRevision = "main"
         path          = "helm-charts/frontend"
       }
@@ -218,7 +218,7 @@ resource "kubectl_manifest" "cronjobs_app" {
     spec = {
       project = "default"
       source = {
-        repoURL        = "https://github.com/your-org/your-repo"
+        repoURL        = "https://github.com/muratozcubukcu/terraform-helm-argocd-project"
         targetRevision = "main"
         path          = "helm-charts/cronjobs"
       }

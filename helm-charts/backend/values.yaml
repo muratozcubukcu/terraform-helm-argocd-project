@@ -22,7 +22,7 @@ postgresql:
   primary:
     persistence:
       enabled: true
-      storageClass: "fast-ssd"
+      storageClass: "hostpath"
       size: 10Gi
       accessModes:
         - ReadWriteOnce
@@ -63,7 +63,7 @@ redis:
   master:
     persistence:
       enabled: true
-      storageClass: "standard-ssd"
+      storageClass: "hostpath"
       size: 5Gi
       accessModes:
         - ReadWriteOnce

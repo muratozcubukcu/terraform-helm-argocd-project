@@ -1,0 +1,32 @@
+# Project Configuration
+project_name = "my-awesome-app"
+environment  = "dev"
+domain_name  = "myapp.example.com"
+
+# Kubernetes Configuration
+kubernetes_config_path = "~/.kube/config"
+
+# ArgoCD Configuration
+argocd_version = "5.51.6"
+
+# Feature Flags
+enable_monitoring = true
+enable_logging    = true
+
+# Storage Configuration
+storage_class = "fast-ssd"
+
+# Node Selection
+node_selector = {
+  "node-role.kubernetes.io/worker" = "true"
+  "kubernetes.io/os"               = "linux"
+}
+
+# Tolerations (if needed)
+tolerations = [
+  # {
+  #   key    = "dedicated"
+  #   value  = "app"
+  #   effect = "NoSchedule"
+  # }
+] 

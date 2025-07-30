@@ -1,0 +1,419 @@
+{{- if .Values.dbBackup.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-db-backup
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: db-backup
+spec:
+  schedule: {{ .Values.dbBackup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: db-backup
+              image: "{{ .Values.dbBackup.image.repository }}:{{ .Values.dbBackup.image.tag }}"
+              imagePullPolicy: {{ .Values.dbBackup.image.pullPolicy }}
+              {{- with .Values.dbBackup.env }}
+              env:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              resources:
+                {{- toYaml .Values.dbBackup.resources | nindent 16 }}
+              {{- with .Values.dbBackup.volumeMounts }}
+              volumeMounts:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- with .Values.dbBackup.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          {{- with .Values.dbBackup.volumes }}
+          volumes:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
+
+{{- if .Values.logRotation.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-log-rotation
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: log-rotation
+spec:
+  schedule: {{ .Values.logRotation.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: log-rotation
+              image: "{{ .Values.logRotation.image.repository }}:{{ .Values.logRotation.image.tag }}"
+              imagePullPolicy: {{ .Values.logRotation.image.pullPolicy }}
+              resources:
+                {{- toYaml .Values.logRotation.resources | nindent 16 }}
+              {{- with .Values.logRotation.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }}
+
+{{- if .Values.healthCheck.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-health-check
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: health-check
+spec:
+  schedule: {{ .Values.healthCheck.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: health-check
+              image: "{{ .Values.healthCheck.image.repository }}:{{ .Values.healthCheck.image.tag }}"
+              imagePullPolicy: {{ .Values.healthCheck.image.pullPolicy }}
+              {{- with .Values.healthCheck.env }}
+              env:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              resources:
+                {{- toYaml .Values.healthCheck.resources | nindent 16 }}
+              {{- with .Values.healthCheck.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }}
+
+{{- if .Values.dataSync.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-data-sync
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: data-sync
+spec:
+  schedule: {{ .Values.dataSync.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: data-sync
+              image: "{{ .Values.dataSync.image.repository }}:{{ .Values.dataSync.image.tag }}"
+              imagePullPolicy: {{ .Values.dataSync.image.pullPolicy }}
+              resources:
+                {{- toYaml .Values.dataSync.resources | nindent 16 }}
+              {{- with .Values.dataSync.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }}
+
+{{- if .Values.cacheCleanup.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-cache-cleanup
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: cache-cleanup
+spec:
+  schedule: {{ .Values.cacheCleanup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: cache-cleanup
+              image: "{{ .Values.cacheCleanup.image.repository }}:{{ .Values.cacheCleanup.image.tag }}"
+              imagePullPolicy: {{ .Values.cacheCleanup.image.pullPolicy }}
+              {{- with .Values.cacheCleanup.env }}
+              env:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              resources:
+                {{- toYaml .Values.cacheCleanup.resources | nindent 16 }}
+              {{- with .Values.cacheCleanup.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }}
+
+{{- if .Values.metricsCollection.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-metrics-collection
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: metrics-collection
+spec:
+  schedule: {{ .Values.metricsCollection.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: metrics-collection
+              image: "{{ .Values.metricsCollection.image.repository }}:{{ .Values.metricsCollection.image.tag }}"
+              imagePullPolicy: {{ .Values.metricsCollection.image.pullPolicy }}
+              resources:
+                {{- toYaml .Values.metricsCollection.resources | nindent 16 }}
+              {{- with .Values.metricsCollection.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }}
+
+{{- if .Values.securityScan.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-security-scan
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: security-scan
+spec:
+  schedule: {{ .Values.securityScan.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: security-scan
+              image: "{{ .Values.securityScan.image.repository }}:{{ .Values.securityScan.image.tag }}"
+              imagePullPolicy: {{ .Values.securityScan.image.pullPolicy }}
+              resources:
+                {{- toYaml .Values.securityScan.resources | nindent 16 }}
+              {{- with .Values.securityScan.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }}
+
+{{- if .Values.jobHistoryCleanup.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cronjobs.fullname" . }}-job-history-cleanup
+  labels:
+    {{- include "cronjobs.labels" . | nindent 4 }}
+    job: job-history-cleanup
+spec:
+  schedule: {{ .Values.jobHistoryCleanup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.serviceAccount.enabled }}
+          serviceAccountName: {{ include "cronjobs.serviceAccountName" . }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: job-history-cleanup
+              image: "{{ .Values.jobHistoryCleanup.image.repository }}:{{ .Values.jobHistoryCleanup.image.tag }}"
+              imagePullPolicy: {{ .Values.jobHistoryCleanup.image.pullPolicy }}
+              resources:
+                {{- toYaml .Values.jobHistoryCleanup.resources | nindent 16 }}
+              {{- with .Values.jobHistoryCleanup.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }} 

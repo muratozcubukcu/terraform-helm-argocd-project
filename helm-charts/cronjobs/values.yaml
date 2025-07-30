@@ -1,0 +1,299 @@
+# Cron Jobs Configuration
+
+# Global settings
+global:
+  environment: dev
+  domain: example.com
+
+# Database Backup Cron Job
+dbBackup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  image:
+    repository: postgres
+    tag: "15.4"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  
+  env:
+    - name: POSTGRES_HOST
+      value: "backend-postgresql"
+    - name: POSTGRES_PORT
+      value: "5432"
+    - name: POSTGRES_DB
+      value: "appdb"
+    - name: POSTGRES_USER
+      value: "appuser"
+    - name: POSTGRES_PASSWORD
+      value: "apppass123"
+    - name: BACKUP_RETENTION_DAYS
+      value: "7"
+  
+  volumeMounts:
+    - name: backup-storage
+      mountPath: /backups
+  
+  volumes:
+    - name: backup-storage
+      persistentVolumeClaim:
+        claimName: db-backup-pvc
+  
+  command:
+    - /bin/bash
+    - -c
+    - |
+      set -e
+      BACKUP_FILE="/backups/backup-$(date +%Y%m%d-%H%M%S).sql"
+      pg_dump -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB > $BACKUP_FILE
+      echo "Backup completed: $BACKUP_FILE"
+      
+      # Clean old backups
+      find /backups -name "backup-*.sql" -mtime +$BACKUP_RETENTION_DAYS -delete
+      echo "Old backups cleaned"
+
+# Log Rotation Cron Job
+logRotation:
+  enabled: true
+  schedule: "0 3 * * *"  # Daily at 3 AM
+  image:
+    repository: busybox
+    tag: "1.36"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+  
+  command:
+    - /bin/sh
+    - -c
+    - |
+      echo "Starting log rotation..."
+      # This would typically interact with your logging system
+      # For example, if using fluentd or logrotate
+      echo "Log rotation completed at $(date)"
+
+# Health Check Monitoring
+healthCheck:
+  enabled: true
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  image:
+    repository: curlimages/curl
+    tag: "8.4.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+  
+  env:
+    - name: HEALTH_CHECK_URL
+      value: "http://backend-app:80/health"
+    - name: SLACK_WEBHOOK_URL
+      value: ""  # Add your Slack webhook URL
+  
+  command:
+    - /bin/sh
+    - -c
+    - |
+      response=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_CHECK_URL)
+      if [ "$response" != "200" ]; then
+        echo "Health check failed with status: $response"
+        if [ -n "$SLACK_WEBHOOK_URL" ]; then
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"Health check failed for $HEALTH_CHECK_URL with status: $response\"}" \
+            $SLACK_WEBHOOK_URL
+        fi
+        exit 1
+      else
+        echo "Health check passed"
+      fi
+
+# Data Synchronization
+dataSync:
+  enabled: true
+  schedule: "0 4 * * *"  # Daily at 4 AM
+  image:
+    repository: alpine
+    tag: "3.18"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  
+  command:
+    - /bin/sh
+    - -c
+    - |
+      echo "Starting data synchronization..."
+      # Add your data sync logic here
+      # For example, syncing data between environments
+      echo "Data synchronization completed at $(date)"
+
+# Cache Cleanup
+cacheCleanup:
+  enabled: true
+  schedule: "0 1 * * *"  # Daily at 1 AM
+  image:
+    repository: redis
+    tag: "7.2-alpine"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+  
+  env:
+    - name: REDIS_HOST
+      value: "backend-redis-master"
+    - name: REDIS_PORT
+      value: "6379"
+    - name: REDIS_PASSWORD
+      value: "redis123"
+  
+  command:
+    - /bin/sh
+    - -c
+    - |
+      echo "Starting cache cleanup..."
+      redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD FLUSHDB
+      echo "Cache cleanup completed at $(date)"
+
+# Metrics Collection
+metricsCollection:
+  enabled: true
+  schedule: "*/15 * * * *"  # Every 15 minutes
+  image:
+    repository: prom/prometheus
+    tag: "v2.47.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  
+  command:
+    - /bin/sh
+    - -c
+    - |
+      echo "Collecting metrics..."
+      # Add your metrics collection logic here
+      echo "Metrics collection completed at $(date)"
+
+# Security Scan
+securityScan:
+  enabled: true
+  schedule: "0 5 * * 0"  # Weekly on Sunday at 5 AM
+  image:
+    repository: aquasec/trivy
+    tag: "0.47.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  command:
+    - /bin/sh
+    - -c
+    - |
+      echo "Starting security scan..."
+      # Add your security scanning logic here
+      echo "Security scan completed at $(date)"
+
+# Job History Cleanup
+jobHistoryCleanup:
+  enabled: true
+  schedule: "0 6 * * 0"  # Weekly on Sunday at 6 AM
+  image:
+    repository: bitnami/kubectl
+    tag: "1.28.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+  
+  command:
+    - /bin/bash
+    - -c
+    - |
+      echo "Cleaning up job history..."
+      # Clean up completed jobs older than 7 days
+      kubectl delete jobs --field-selector=status.successful=1 --all-namespaces --dry-run=client -o name | \
+      xargs -I {} kubectl patch {} -p '{"metadata":{"finalizers":null}}' --type=merge
+      echo "Job history cleanup completed at $(date)"
+
+# Service Account
+serviceAccount:
+  enabled: true
+  create: true
+  annotations: {}
+
+# RBAC
+rbac:
+  enabled: true
+  create: true
+
+# Pod Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Node Selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - cronjobs
+          topologyKey: kubernetes.io/hostname 

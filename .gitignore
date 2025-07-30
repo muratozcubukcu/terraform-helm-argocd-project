@@ -1,0 +1,76 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+*.tfplan
+*.tfvars
+!*.tfvars.example
+
+# Kubernetes
+*.kubeconfig
+kubeconfig
+
+# Helm
+charts/*.tgz
+charts/*.tar.gz
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ArgoCD
+argocd-initial-admin-secret
+
+# Secrets
+secrets/
+*.pem
+*.key
+*.crt
+
+# Build artifacts
+dist/
+build/
+*.tar.gz
+
+# Node modules (if any)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Backup files
+backup/
+backups/ 

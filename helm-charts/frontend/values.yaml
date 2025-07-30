@@ -1,0 +1,123 @@
+# Frontend Application Configuration
+
+# Global settings
+global:
+  environment: dev
+  domain: example.com
+
+# Frontend Application
+app:
+  enabled: true
+  image:
+    repository: nginx
+    tag: "alpine"
+    pullPolicy: IfNotPresent
+  
+  replicas: 3
+  
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+  
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: app.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: frontend-tls
+        hosts:
+          - app.example.com
+  
+  env:
+    - name: API_URL
+      value: "https://api.example.com"
+    - name: NODE_ENV
+      value: "production"
+  
+  configMap:
+    enabled: true
+    data:
+      nginx.conf: |
+        server {
+          listen 80;
+          server_name app.example.com;
+          
+          location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+          }
+          
+          location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+          }
+        }
+
+# Horizontal Pod Autoscaler
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+pdb:
+  enabled: true
+  minAvailable: 1
+
+# Service Account
+serviceAccount:
+  enabled: true
+  create: true
+  annotations: {}
+
+# RBAC
+rbac:
+  enabled: true
+  create: true
+
+# Pod Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Node Selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - frontend
+          topologyKey: kubernetes.io/hostname 

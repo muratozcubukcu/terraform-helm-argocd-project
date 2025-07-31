@@ -1,0 +1,35 @@
+app:
+  name: simple-app
+  image: nginx:latest
+  replicas: 2
+  port: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+database:
+  host: postgresql
+  port: 5432
+  name: appdb
+  user: appuser
+
+cronjobs:
+  backup:
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    image: postgres:15
+    enabled: true
+  
+  cleanup:
+    schedule: "0 4 * * 0"  # Weekly on Sunday at 4 AM
+    image: busybox:latest
+    enabled: true
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

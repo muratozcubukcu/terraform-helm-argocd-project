@@ -22,163 +22,62 @@ provider "helm" {
   }
 }
 
-# Create namespace for Argo CD
-resource "kubernetes_namespace" "argocd" {
+# Create namespace for the application
+resource "kubernetes_namespace" "app_namespace" {
   metadata {
-    name = "argocd"
+    name = var.namespace
     labels = {
-      name = "argocd"
+      name = var.namespace
+      "argocd.argoproj.io/managed-by" = "argocd"
     }
   }
 }
 
-# Create namespace for applications
-resource "kubernetes_namespace" "applications" {
-  metadata {
-    name = "applications"
-    labels = {
-      name = "applications"
-    }
-  }
-}
-
-# Add Argo CD Helm repository
-resource "helm_release" "argocd" {
-  name       = "argocd"
-  repository = "https://argoproj.github.io/argo-helm"
-  chart      = "argo-cd"
-  version    = "5.51.6"
-  namespace  = kubernetes_namespace.argocd.metadata[0].name
-
-  set {
-    name  = "server.extraArgs"
-    value = "{--insecure}"
-  }
-
-  set {
-    name  = "server.ingress.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "server.ingress.ingressClassName"
-    value = "nginx"
-  }
-
-  set {
-    name  = "server.ingress.hosts[0]"
-    value = "argocd.local"
-  }
-
-  set {
-    name  = "server.ingress.tls[0].secretName"
-    value = "argocd-server-tls"
-  }
-
-  set {
-    name  = "server.ingress.tls[0].hosts[0]"
-    value = "argocd.local"
-  }
-
-  set {
-    name  = "redis.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "redis.auth.enabled"
-    value = "false"
-  }
-
-  depends_on = [kubernetes_namespace.argocd]
-}
-
-# Deploy PostgreSQL StatefulSet for Argo CD
+# Deploy PostgreSQL using Bitnami Helm chart
 resource "helm_release" "postgresql" {
   name       = "postgresql"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
-  version    = "12.5.8"
-  namespace  = kubernetes_namespace.argocd.metadata[0].name
+  version    = "12.12.10"
+  namespace  = kubernetes_namespace.app_namespace.metadata[0].name
 
-  set {
-    name  = "auth.postgresPassword"
-    value = "argocd123"
-  }
+  values = [
+    file("${path.module}/values/postgresql-values.yaml")
+  ]
 
-  set {
-    name  = "auth.database"
-    value = "argocd"
-  }
-
-  set {
-    name  = "primary.persistence.size"
-    value = "10Gi"
-  }
-
-  set {
-    name  = "primary.persistence.storageClass"
-    value = "standard"
-  }
-
-  set {
-    name  = "architecture"
-    value = "standalone"
-  }
-
-  set {
-    name  = "primary.resources.requests.memory"
-    value = "256Mi"
-  }
-
-  set {
-    name  = "primary.resources.requests.cpu"
-    value = "250m"
-  }
-
-  set {
-    name  = "primary.resources.limits.memory"
-    value = "512Mi"
-  }
-
-  set {
-    name  = "primary.resources.limits.cpu"
-    value = "500m"
-  }
-
-  depends_on = [kubernetes_namespace.argocd]
+  depends_on = [kubernetes_namespace.app_namespace]
 }
 
-# Create Argo CD Application for sample app
-resource "kubernetes_manifest" "argocd_application" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "sample-app"
-      namespace = kubernetes_namespace.argocd.metadata[0].name
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = "https://github.com/argoproj/argocd-example-apps"
-        targetRevision = "HEAD"
-        path          = "guestbook"
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = kubernetes_namespace.applications.metadata[0].name
-      }
-      syncPolicy = {
-        automated = {
-          prune      = true
-          selfHeal   = true
-          allowEmpty = true
-        }
-        syncOptions = ["CreateNamespace=true"]
-      }
-    }
+# Deploy application using local Helm chart
+resource "helm_release" "app" {
+  name      = var.app_name
+  chart     = "${path.module}/../helm-chart"
+  namespace = kubernetes_namespace.app_namespace.metadata[0].name
+
+  values = [
+    file("${path.module}/values/app-values.yaml")
+  ]
+
+  depends_on = [
+    kubernetes_namespace.app_namespace,
+    helm_release.postgresql
+  ]
+}
+
+# Create secret for PostgreSQL connection
+resource "kubernetes_secret" "db_secret" {
+  metadata {
+    name      = "${var.app_name}-db-secret"
+    namespace = kubernetes_namespace.app_namespace.metadata[0].name
   }
 
-  depends_on = [helm_release.argocd]
-} 
+  data = {
+    POSTGRES_HOST     = "postgresql.${kubernetes_namespace.app_namespace.metadata[0].name}.svc.cluster.local"
+    POSTGRES_PORT     = "5432"
+    POSTGRES_DB       = var.postgres_database
+    POSTGRES_USER     = var.postgres_user
+    POSTGRES_PASSWORD = var.postgres_password
+  }
+
+  type = "Opaque"
+}

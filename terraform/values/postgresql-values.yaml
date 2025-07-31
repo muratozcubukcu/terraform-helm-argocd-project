@@ -1,0 +1,33 @@
+auth:
+  enablePostgresUser: true
+  postgresPassword: "apppassword"
+  username: "appuser"
+  password: "apppassword"
+  database: "appdb"
+
+architecture: standalone
+
+primary:
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: ""
+  
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 500m
+    requests:
+      memory: 128Mi
+      cpu: 250m
+
+  service:
+    type: ClusterIP
+    ports:
+      postgresql: 5432
+
+metrics:
+  enabled: false
+
+backup:
+  enabled: false

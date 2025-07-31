@@ -1,0 +1,93 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-app-helm
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/muratozcubukcu/terrahelm.git
+    targetRevision: HEAD
+    path: helm-chart
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: app.name
+          value: simple-app
+        - name: app.replicas
+          value: "2"
+        - name: database.secretName
+          value: simple-app-db-secret
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: simple-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 3
+
+---
+# Separate PostgreSQL Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgresql
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: postgresql
+    targetRevision: 12.12.10
+    helm:
+      values: |
+        auth:
+          enablePostgresUser: true
+          postgresPassword: "apppassword"
+          username: "appuser"
+          password: "apppassword"
+          database: "appdb"
+        architecture: standalone
+        primary:
+          persistence:
+            enabled: true
+            size: 8Gi
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 500m
+            requests:
+              memory: 128Mi
+              cpu: 250m
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: simple-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

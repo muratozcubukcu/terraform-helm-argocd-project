@@ -1,0 +1,72 @@
+app:
+  name: simple-app
+  image: nginx:latest
+  replicas: 2
+  port: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: simple-app.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+database:
+  host: postgresql
+  port: 5432
+  name: appdb
+  user: appuser
+  secretName: simple-app-db-secret
+
+cronjobs:
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    image: postgres:15
+    restartPolicy: OnFailure
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        echo "Running database backup at $(date)"
+        pg_dump -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB > /tmp/backup_$(date +%Y%m%d_%H%M%S).sql
+        echo "Backup completed"
+    
+  cleanup:
+    enabled: true
+    schedule: "0 4 * * 0"  # Weekly on Sunday at 4 AM
+    image: busybox:latest
+    restartPolicy: OnFailure
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Running cleanup job at $(date)"
+        # Add your cleanup logic here
+        echo "Cleanup completed"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+postgresql:
+  enabled: false  # We deploy PostgreSQL separately via Terraform

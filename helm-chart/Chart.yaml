@@ -1,0 +1,22 @@
+apiVersion: v2
+name: simple-app
+description: A simple application with PostgreSQL backend and cronjobs
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: postgresql
+    version: 12.12.10
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+
+maintainers:
+  - name: DevOps Team
+    email: devops@example.com
+
+keywords:
+  - web
+  - application
+  - postgresql
+  - cronjobs

@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/muratozcubukcu/terrahelm.git
+    targetRevision: HEAD
+    path: terraform
+    plugin:
+      name: terraform
+      env:
+        - name: TF_VAR_namespace
+          value: "simple-app"
+        - name: TF_VAR_app_name
+          value: "simple-app"
+        - name: TF_VAR_postgres_password
+          value: "apppassword"  # In production, use a secret manager
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: simple-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 3

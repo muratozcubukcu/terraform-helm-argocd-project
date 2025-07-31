@@ -1,0 +1,85 @@
+{{- if .Values.cronjobs.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.app.name }}-backup
+  labels:
+    app: {{ .Values.app.name }}
+    component: backup-cronjob
+    chart: {{ include "simple-app.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  schedule: {{ .Values.cronjobs.backup.schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Values.app.name }}
+            component: backup-cronjob
+            release: {{ .Release.Name }}
+        spec:
+          restartPolicy: {{ .Values.cronjobs.backup.restartPolicy }}
+          containers:
+          - name: backup
+            image: {{ .Values.cronjobs.backup.image }}
+            env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_PORT
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_PASSWORD
+            command:
+              {{- toYaml .Values.cronjobs.backup.command | nindent 14 }}
+---
+{{- end }}
+{{- if .Values.cronjobs.cleanup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.app.name }}-cleanup
+  labels:
+    app: {{ .Values.app.name }}
+    component: cleanup-cronjob
+    chart: {{ include "simple-app.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  schedule: {{ .Values.cronjobs.cleanup.schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Values.app.name }}
+            component: cleanup-cronjob
+            release: {{ .Release.Name }}
+        spec:
+          restartPolicy: {{ .Values.cronjobs.cleanup.restartPolicy }}
+          containers:
+          - name: cleanup
+            image: {{ .Values.cronjobs.cleanup.image }}
+            command:
+              {{- toYaml .Values.cronjobs.cleanup.command | nindent 14 }}
+{{- end }}

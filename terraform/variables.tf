@@ -1,60 +1,42 @@
-variable "argocd_namespace" {
-  description = "Namespace for Argo CD"
+variable "namespace" {
+  description = "Kubernetes namespace for the application"
   type        = string
-  default     = "argocd"
+  default     = "simple-app"
 }
 
-variable "applications_namespace" {
-  description = "Namespace for applications"
+variable "app_name" {
+  description = "Name of the application"
   type        = string
-  default     = "applications"
+  default     = "simple-app"
 }
 
-variable "argocd_version" {
-  description = "Argo CD Helm chart version"
+variable "postgres_database" {
+  description = "PostgreSQL database name"
   type        = string
-  default     = "5.51.6"
+  default     = "appdb"
 }
 
-variable "postgresql_version" {
-  description = "PostgreSQL Helm chart version"
+variable "postgres_user" {
+  description = "PostgreSQL username"
   type        = string
-  default     = "12.5.8"
+  default     = "appuser"
 }
 
-variable "postgresql_password" {
+variable "postgres_password" {
   description = "PostgreSQL password"
   type        = string
-  default     = "argocd123"
+  default     = "apppassword"
   sensitive   = true
 }
 
-variable "postgresql_database" {
-  description = "PostgreSQL database name"
+variable "app_image" {
+  description = "Docker image for the application"
   type        = string
-  default     = "argocd"
+  default     = "nginx:latest"
 }
 
-variable "storage_class" {
-  description = "Storage class for persistent volumes"
-  type        = string
-  default     = "standard"
+variable "app_replicas" {
+  description = "Number of application replicas"
+  type        = number
+  default     = 2
 }
-
-variable "postgresql_storage_size" {
-  description = "PostgreSQL storage size"
-  type        = string
-  default     = "10Gi"
-}
-
-variable "argocd_host" {
-  description = "Argo CD ingress host"
-  type        = string
-  default     = "argocd.local"
-}
-
-variable "ingress_class" {
-  description = "Ingress class name"
-  type        = string
-  default     = "nginx"
-} 

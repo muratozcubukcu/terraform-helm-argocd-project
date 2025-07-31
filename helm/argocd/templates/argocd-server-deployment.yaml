@@ -36,16 +36,6 @@ spec:
         - {{ include "argocd-custom.fullname" . }}-repo-server:8081
         - --redis
         - {{ include "argocd-custom.fullname" . }}-redis:6379
-        - --db-host
-        - {{ include "argocd-custom.postgresqlServiceName" . }}
-        - --db-port
-        - "5432"
-        - --db-name
-        - {{ .Values.postgresql.auth.database }}
-        - --db-user
-        - {{ .Values.postgresql.auth.username }}
-        - --db-password
-        - {{ .Values.postgresql.auth.postgresPassword }}
         ports:
         - name: http
           containerPort: 8080

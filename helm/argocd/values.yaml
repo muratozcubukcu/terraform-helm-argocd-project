@@ -2,6 +2,7 @@
 argocd:
   # Server configuration
   server:
+    replicas: 1
     extraArgs:
       - --insecure
     ingress:
@@ -28,6 +29,7 @@ argocd:
 
   # Repository server configuration
   repoServer:
+    replicas: 1
     resources:
       requests:
         memory: "256Mi"
@@ -37,6 +39,17 @@ argocd:
         cpu: "500m"
 
   # Application controller configuration
+  applicationController:
+    replicas: 1
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  
+  # Application Set configuration
   applicationSet:
     enabled: true
     resources:

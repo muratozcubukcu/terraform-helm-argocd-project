@@ -1,0 +1,131 @@
+# Argo CD Configuration
+argocd:
+  # Server configuration
+  server:
+    extraArgs:
+      - --insecure
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - argocd.local
+      tls:
+        - secretName: argocd-server-tls
+          hosts:
+            - argocd.local
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    
+    # Resource limits
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+  # Repository server configuration
+  repoServer:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+  # Application controller configuration
+  applicationSet:
+    enabled: true
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+  # Redis configuration
+  redis:
+    enabled: true
+    auth:
+      enabled: false
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+  # PostgreSQL configuration
+  postgresql:
+    enabled: false  # We'll use our own PostgreSQL StatefulSet
+
+# PostgreSQL StatefulSet Configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "argocd123"
+    database: "argocd"
+    username: "argocd"
+    password: "argocd123"
+  
+  primary:
+    persistence:
+      enabled: true
+      size: "10Gi"
+      storageClass: "standard"
+    
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    
+    # StatefulSet specific configuration
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "5432"
+    
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 5432
+    
+    # Security context
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+      runAsUser: 1001
+      runAsNonRoot: true
+
+  # Architecture (standalone for simplicity)
+  architecture: "standalone"
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: "standard"
+
+# RBAC configuration
+rbac:
+  create: true
+  pspEnabled: false
+
+# Service account configuration
+serviceAccount:
+  create: true
+  name: "argocd-application-controller"
+  annotations: {}
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  fsGroup: 999 

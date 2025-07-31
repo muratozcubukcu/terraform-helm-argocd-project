@@ -4,9 +4,8 @@
 .terraform/
 .terraform.lock.hcl
 terraform.tfvars
-*.tfplan
 *.tfvars
-!*.tfvars.example
+!terraform.tfvars.example
 
 # Kubernetes
 *.kubeconfig
@@ -14,7 +13,7 @@ kubeconfig
 
 # Helm
 charts/*.tgz
-charts/*.tar.gz
+*.tgz
 
 # Logs
 *.log
@@ -39,38 +38,21 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+temp/
+tmp/
+
+# Backup files
 *.bak
 *.backup
-
-# ArgoCD
-argocd-initial-admin-secret
+backup/
 
 # Secrets
 secrets/
 *.pem
 *.key
 *.crt
+*.p12
+*.pfx
 
-# Build artifacts
-dist/
-build/
-*.tar.gz
-
-# Node modules (if any)
-node_modules/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Backup files
-backup/
-backups/ 
+# Argo CD
+argocd-initial-admin-secret.yaml 

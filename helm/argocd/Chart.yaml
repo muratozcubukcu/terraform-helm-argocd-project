@@ -1,0 +1,16 @@
+apiVersion: v2
+name: argocd-custom
+description: A Helm chart for Argo CD with PostgreSQL StatefulSet
+type: application
+version: 0.1.0
+appVersion: "2.8.4"
+keywords:
+  - argocd
+  - gitops
+  - kubernetes
+home: https://argoproj.github.io/argo-cd/
+sources:
+  - https://github.com/argoproj/argo-cd
+maintainers:
+  - name: Argo CD Team
+    email: argocd@argoproj.io 

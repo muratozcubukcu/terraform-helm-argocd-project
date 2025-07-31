@@ -1,0 +1,22 @@
+# Example terraform.tfvars file
+# Copy this file to terraform.tfvars and modify the values as needed
+
+# Namespace configuration
+argocd_namespace = "argocd"
+applications_namespace = "applications"
+
+# Argo CD version
+argocd_version = "5.51.6"
+
+# PostgreSQL configuration
+postgresql_version = "12.5.8"
+postgresql_password = "your-secure-password-here"
+postgresql_database = "argocd"
+postgresql_storage_size = "10Gi"
+
+# Storage configuration
+storage_class = "standard"
+
+# Ingress configuration
+argocd_host = "argocd.your-domain.com"
+ingress_class = "nginx" 

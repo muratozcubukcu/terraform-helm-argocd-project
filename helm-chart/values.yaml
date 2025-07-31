@@ -69,4 +69,4 @@ tolerations: []
 affinity: {}
 
 postgresql:
-  enabled: false  # We deploy PostgreSQL separately via Terraform
+  enabled: false  # Deploy PostgreSQL separately via Terraform

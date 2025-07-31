@@ -134,19 +134,3 @@ spec:
   
   revisionHistoryLimit: 3
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: terrahelm-db-secret
-  namespace: terrahelm
-  labels:
-    app.kubernetes.io/name: terrahelm
-    app.kubernetes.io/part-of: terrahelm-stack
-data:
-  POSTGRES_HOST: cG9zdGdyZXNxbC50ZXJyYWhlbG0uc3ZjLmNsdXN0ZXIubG9jYWw=  # postgresql.terrahelm.svc.cluster.local
-  POSTGRES_PORT: NTQzMg==  # 5432
-  POSTGRES_DB: YXBwZGI=  # appdb
-  POSTGRES_USER: YXBwdXNlcg==  # appuser
-  POSTGRES_PASSWORD: YXBwcGFzc3dvcmQ=  # apppassword
-type: Opaque

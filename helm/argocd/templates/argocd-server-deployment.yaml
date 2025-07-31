@@ -34,8 +34,6 @@ spec:
         - /shared/app
         - --repo-server
         - {{ include "argocd-custom.fullname" . }}-repo-server:8081
-        - --application-controller
-        - {{ include "argocd-custom.fullname" . }}-application-controller:8082
         - --redis
         - {{ include "argocd-custom.fullname" . }}-redis:6379
         - --db-host

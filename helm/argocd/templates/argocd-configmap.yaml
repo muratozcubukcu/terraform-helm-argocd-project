@@ -7,31 +7,25 @@ metadata:
     {{- include "argocd-custom.labels" . | nindent 4 }}
 data:
   # Argo CD configuration
-  url: https://{{ .Values.argocd.server.ingress.hosts | first }}
+  url: "https://{{ .Values.argocd.server.ingress.hosts | first }}"
   
   # Database configuration
-  database:
-    host: {{ include "argocd-custom.postgresqlServiceName" . }}
-    port: "5432"
-    name: {{ .Values.postgresql.auth.database }}
-    user: {{ .Values.postgresql.auth.username }}
+  database.host: "{{ include "argocd-custom.postgresqlServiceName" . }}"
+  database.port: "5432"
+  database.name: "{{ .Values.postgresql.auth.database }}"
+  database.user: "{{ .Values.postgresql.auth.username }}"
   
   # Redis configuration
-  redis:
-    host: {{ include "argocd-custom.fullname" . }}-redis
-    port: "6379"
+  redis.host: "{{ include "argocd-custom.fullname" . }}-redis"
+  redis.port: "6379"
   
   # Repository configuration
-  repos:
+  repos: |
     - type: git
       url: https://github.com/argoproj/argocd-example-apps
       insecure: true
   
   # Application settings
-  application:
-    controller:
-      replicas: 1
-    server:
-      replicas: 1
-    repoServer:
-      replicas: 1 
+  application.controller.replicas: "1"
+  application.server.replicas: "1"
+  application.repoServer.replicas: "1" 

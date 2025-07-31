@@ -1,3 +1,4 @@
+{{- if .Values.cacheClear.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
@@ -20,18 +21,18 @@ spec:
           template: determine-cache-type
         - name: clear-redis
           template: clear-redis-cache
-          when: "{{workflow.parameters.cache-type}} == 'redis' || {{workflow.parameters.cache-type}} == 'all'"
+          when: "{{ .Values.cacheClear.cacheType | default 'all' }} == 'redis' || {{ .Values.cacheClear.cacheType | default 'all' }} == 'all'"
         - name: clear-argo
           template: clear-argo-cache
-          when: "{{workflow.parameters.cache-type}} == 'argo' || {{workflow.parameters.cache-type}} == 'all'"
+          when: "{{ .Values.cacheClear.cacheType | default 'all' }} == 'argo' || {{ .Values.cacheClear.cacheType | default 'all' }} == 'all'"
     
     - name: determine-cache-type
       script:
         image: alpine:3.18
         command: [sh]
         source: |
-          echo "Cache type to clear: {{workflow.parameters.cache-type}}"
-          echo "Dry run mode: {{workflow.parameters.dry-run}}"
+          echo "Cache type to clear: {{ .Values.cacheClear.cacheType | default 'all' }}"
+          echo "Dry run mode: {{ .Values.cacheClear.dryRun | default 'false' }}"
     
     - name: clear-redis-cache
       container:
@@ -39,9 +40,10 @@ spec:
         command: [sh, -c]
         args:
         - |
-          if [ "{{workflow.parameters.dry-run}}" = "true" ]; then
+          if [ "{{ .Values.cacheClear.dryRun | default 'false' }}" = "true" ]; then
             echo "DRY RUN: Would clear Redis cache"
           else
             redis-cli -h {{ include "argocd-custom.fullname" . }}-redis -p 6379 FLUSHALL
             echo "Redis cache cleared"
           fi
+{{- end }}

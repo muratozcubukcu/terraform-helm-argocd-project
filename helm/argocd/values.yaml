@@ -94,7 +94,7 @@ postgresql:
     persistence:
       enabled: true
       size: "10Gi"
-      storageClass: "standard"
+      storageClass: "hostpath"
     
     resources:
       requests:

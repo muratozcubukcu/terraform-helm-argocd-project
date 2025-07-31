@@ -14,3 +14,9 @@ sources:
 maintainers:
   - name: Argo CD Team
     email: argocd@argoproj.io 
+
+dependencies:
+  - name: argo-workflows
+    version: 0.40.0
+    repository: https://argoproj.github.io/argo-workflows
+    condition: argo-workflows.enabled

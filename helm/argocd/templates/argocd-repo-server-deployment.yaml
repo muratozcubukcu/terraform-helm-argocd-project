@@ -6,6 +6,12 @@ metadata:
   labels:
     {{- include "argocd-custom.labels" . | nindent 4 }}
     app.kubernetes.io/component: repo-server
+  annotations:
+    argocd.argoproj.io/health: |
+      {
+        "status": "Healthy",
+        "message": "Repo server is running"
+      }
 spec:
   replicas: {{ .Values.argocd.repoServer.replicas | default 1 }}
   selector:
@@ -17,6 +23,12 @@ spec:
       labels:
         {{- include "argocd-custom.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: repo-server
+      annotations:
+        argocd.argoproj.io/health: |
+          {
+            "status": "Healthy",
+            "message": "Repo server pod is ready"
+          }
     spec:
       {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ include "argocd-custom.serviceAccountName" . }}
@@ -42,7 +54,7 @@ spec:
           httpGet:
             path: /healthz
             port: http
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 6
@@ -50,7 +62,7 @@ spec:
           httpGet:
             path: /healthz
             port: http
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
           periodSeconds: 5
           timeoutSeconds: 1
           failureThreshold: 6

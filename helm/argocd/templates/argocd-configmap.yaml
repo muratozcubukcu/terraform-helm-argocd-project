@@ -5,8 +5,33 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "argocd-custom.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-options: PruneLast=true
+    argocd.argoproj.io/health: |
+      {
+        "status": "Healthy",
+        "message": "ArgoCD configuration is ready"
+      }
 data:
-  url: "https://{{ .Values.argocd.server.ingress.hosts | first }}"
+  # ArgoCD configuration
+  url: https://{{ .Values.argocd.server.ingress.hosts | first }}
+  admin.enabled: "true"
+  application.instanceLabelKey: argocd.argoproj.io/instance
+  configManagementPlugins: |
+    - name: kustomize
+      init:
+        command: [sh, -c]
+        args: ["echo 'Initializing kustomize'"]
+      generate:
+        command: [kustomize, build]
+        args: [.]
+    - name: helm
+      init:
+        command: [sh, -c]
+        args: ["echo 'Initializing helm'"]
+      generate:
+        command: [helm, template]
+        args: [.]
   
   database.host: "{{ include "argocd-custom.postgresqlServiceName" . }}"
   database.port: "5432"

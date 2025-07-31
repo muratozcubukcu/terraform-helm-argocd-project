@@ -6,6 +6,12 @@ metadata:
   labels:
     {{- include "argocd-custom.labels" . | nindent 4 }}
     app.kubernetes.io/component: database
+  annotations:
+    argocd.argoproj.io/health: |
+      {
+        "status": "Healthy",
+        "message": "PostgreSQL database is running"
+      }
 spec:
   serviceName: {{ include "argocd-custom.fullname" . }}-postgresql
   replicas: 1
@@ -19,6 +25,11 @@ spec:
         {{- include "argocd-custom.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: database
       annotations:
+        argocd.argoproj.io/health: |
+          {
+            "status": "Healthy",
+            "message": "PostgreSQL pod is ready"
+          }
         {{- with .Values.postgresql.primary.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

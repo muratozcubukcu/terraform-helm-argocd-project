@@ -217,10 +217,10 @@ async function startServer() {
     await initDatabase();
     
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Terrahelm webapp running on port ${PORT}`);
-      console.log(`📊 Frontend: http://localhost:${PORT}`);
-      console.log(`🔍 Health: http://localhost:${PORT}/health`);
-      console.log(`⚙️ Environment: ${process.env.NODE_ENV || 'production'}`);
+      console.log(`Terrahelm webapp running on port ${PORT}`);
+      console.log(`Frontend: http://localhost:${PORT}`);
+      console.log(`Health: http://localhost:${PORT}/health`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'production'}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

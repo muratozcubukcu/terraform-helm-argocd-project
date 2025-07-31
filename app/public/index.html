@@ -233,7 +233,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Terrahelm Monitor</h1>
+            <h1>Terrahelm Monitor</h1>
             <p>Frontend & Backend Connectivity Dashboard</p>
             <div class="timestamp" id="lastUpdate">Last updated: Loading...</div>
         </div>
@@ -251,7 +251,7 @@
                     </div>
                 </div>
                 <div class="controls">
-                    <button class="btn" onclick="refreshFrontend()">🔄 Refresh</button>
+                    <button class="btn" onclick="refreshFrontend()">Refresh</button>
                 </div>
             </div>
 
@@ -267,8 +267,8 @@
                     </div>
                 </div>
                 <div class="controls">
-                    <button class="btn" onclick="refreshBackend()">🔄 Refresh</button>
-                    <button class="btn" onclick="testDatabase()">🧪 Test DB</button>
+                    <button class="btn" onclick="refreshBackend()">Refresh</button>
+                    <button class="btn" onclick="testDatabase()">Test DB</button>
                 </div>
             </div>
 
@@ -284,20 +284,20 @@
                     </div>
                 </div>
                 <div class="controls">
-                    <button class="btn" onclick="refreshSystem()">🔄 Refresh</button>
+                    <button class="btn" onclick="refreshSystem()">Refresh</button>
                 </div>
             </div>
         </div>
 
         <!-- Database Test Section -->
         <div class="test-section">
-            <h2>🧪 Database Test</h2>
+            <h2>Database Test</h2>
             <p>Test database write operations and view recent activity.</p>
             
             <input type="text" class="test-input" id="testMessage" placeholder="Enter test message..." value="Hello from web interface!">
             <div class="controls">
-                <button class="btn" onclick="writeToDatabase()">✍️ Write to DB</button>
-                <button class="btn" onclick="refreshBackend()">📊 View Recent</button>
+                <button class="btn" onclick="writeToDatabase()">Write to DB</button>
+                <button class="btn" onclick="refreshBackend()">View Recent</button>
             </div>
             
             <div class="log-container" id="testResults">
@@ -307,7 +307,7 @@
 
         <div class="footer">
             <p>Powered by Node.js + PostgreSQL + Kubernetes | Auto-refresh every 30 seconds</p>
-            <p>Built with ❤️ for monitoring Terrahelm deployment</p>
+            <p>Built for monitoring Terrahelm deployment</p>
         </div>
     </div>
 
@@ -419,21 +419,21 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    logToResults(`✅ Database connection test successful! Response time: ${data.database.responseTime}`);
-                    logToResults(`📊 Database size: ${formatBytes(data.database.size)}`);
-                    logToResults(`📝 Total health checks: ${data.database.totalHealthChecks}`);
+                    logToResults(`Database connection test successful! Response time: ${data.database.responseTime}`);
+                    logToResults(`Database size: ${formatBytes(data.database.size)}`);
+                    logToResults(`Total health checks: ${data.database.totalHealthChecks}`);
                 } else {
-                    logToResults(`❌ Database test failed: ${data.error}`, true);
+                    logToResults(`Database test failed: ${data.error}`, true);
                 }
             } catch (error) {
-                logToResults(`❌ Database test error: ${error.message}`, true);
+                logToResults(`Database test error: ${error.message}`, true);
             }
         }
 
         async function writeToDatabase() {
             const message = document.getElementById('testMessage').value;
             if (!message.trim()) {
-                logToResults('❌ Please enter a message', true);
+                logToResults('Please enter a message', true);
                 return;
             }
 
@@ -447,14 +447,14 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    logToResults(`✅ Successfully wrote to database: "${message}"`);
-                    logToResults(`📋 Record ID: ${data.data.id}, Time: ${new Date(data.data.timestamp).toLocaleString()}`);
+                    logToResults(`Successfully wrote to database: "${message}"`);
+                    logToResults(`Record ID: ${data.data.id}, Time: ${new Date(data.data.timestamp).toLocaleString()}`);
                     document.getElementById('testMessage').value = '';
                 } else {
-                    logToResults(`❌ Write failed: ${data.error}`, true);
+                    logToResults(`Write failed: ${data.error}`, true);
                 }
             } catch (error) {
-                logToResults(`❌ Write error: ${error.message}`, true);
+                logToResults(`Write error: ${error.message}`, true);
             }
         }
 
@@ -507,7 +507,7 @@
                     <div class="info-grid">
                         <div class="info-item">
                             <div class="info-label">DB Connected</div>
-                            <div class="info-value">✅ ${data.database.connected ? 'Yes' : 'No'}</div>
+                            <div class="info-value">${data.database.connected ? 'Yes' : 'No'}</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Response Time</div>
@@ -600,8 +600,8 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             startAutoRefresh();
-            logToResults('🚀 Terrahelm monitor initialized');
-            logToResults('🔄 Auto-refresh enabled (30s interval)');
+            logToResults('Terrahelm monitor initialized');
+            logToResults('Auto-refresh enabled (30s interval)');
         });
 
         // Handle page visibility change

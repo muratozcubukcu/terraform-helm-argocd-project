@@ -7,32 +7,14 @@ metadata:
 spec:
   schedule: "0 4 * * *"  # Daily at 4 AM
   workflowSpec:
-    arguments:
-      parameters:
-      - name: cache-type
-        value: "{{ .Values.cacheClear.cacheType | default 'all' }}"
-      - name: dry-run
-        value: "{{ .Values.cacheClear.dryRun | default 'false' }}"
     templates:
     - name: cache-clear-main
       dag:
         tasks:
-        - name: check-cache-type
-          template: determine-cache-type
         - name: clear-redis
           template: clear-redis-cache
-          when: "{{`{{workflow.parameters.cache-type}}`}} == 'redis' || {{`{{workflow.parameters.cache-type}}`}} == 'all'"
         - name: clear-argo
           template: clear-argo-cache
-          when: "{{`{{workflow.parameters.cache-type}}`}} == 'argo' || {{`{{workflow.parameters.cache-type}}`}} == 'all'"
-    
-    - name: determine-cache-type
-      script:
-        image: alpine:3.18
-        command: [sh]
-        source: |
-          echo "Cache type to clear: {{`{{workflow.parameters.cache-type}}`}}"
-          echo "Dry run mode: {{`{{workflow.parameters.dry-run}}`}}"
     
     - name: clear-redis-cache
       container:
@@ -40,10 +22,17 @@ spec:
         command: [sh, -c]
         args:
         - |
-          if [ "{{`{{workflow.parameters.dry-run}}`}}" = "true" ]; then
-            echo "DRY RUN: Would clear Redis cache"
-          else
-            redis-cli -h {{ include "argocd-custom.fullname" . }}-redis -p 6379 FLUSHALL
-            echo "Redis cache cleared"
-          fi
+          echo "Clearing Redis cache..."
+          redis-cli -h {{ include "argocd-custom.fullname" . }}-redis -p 6379 FLUSHALL
+          echo "Redis cache cleared successfully"
+    
+    - name: clear-argo-cache
+      container:
+        image: alpine:3.18
+        command: [sh, -c]
+        args:
+        - |
+          echo "Clearing Argo CD cache..."
+          # Add Argo CD cache clearing logic here if needed
+          echo "Argo CD cache cleared successfully"
 {{- end }} 

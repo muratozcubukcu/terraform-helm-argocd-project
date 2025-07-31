@@ -1,6 +1,6 @@
 argocd:
   argo-workflows:
-    enabled: true
+    enabled: false
 
   server:
     replicas: 1
@@ -136,7 +136,7 @@ securityContext:
   fsGroup: 999 
 
 cronWorkflows:
-  enabled: true
+  enabled: false
   workflows:
     clear-redis-cache:
       schedule: "0 0 * * *"

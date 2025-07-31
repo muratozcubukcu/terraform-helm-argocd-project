@@ -25,7 +25,7 @@ spec:
         - name: database.secretName
           value: terrahelm-db-secret
         - name: app.image
-          value: nginx:latest
+          value: muratozcubukcu/terrahelm-webapp:latest
   destination:
     server: https://kubernetes.default.svc
     namespace: terrahelm

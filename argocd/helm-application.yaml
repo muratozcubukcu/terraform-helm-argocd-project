@@ -18,7 +18,7 @@ spec:
         - name: app.name
           value: simple-app
         - name: app.replicas
-          value: "2"
+          value: "1"
         - name: database.secretName
           value: simple-app-db-secret
   destination:

@@ -1,7 +1,7 @@
 app:
   name: terrahelm-app
   image: muratozcubukcu/terrahelm-webapp:latest
-  replicas: 2
+  replicas: 1
   port: 3000
 
 service:

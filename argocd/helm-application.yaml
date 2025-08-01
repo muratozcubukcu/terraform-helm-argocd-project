@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: simple-app-helm
+  name: app-helm
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -17,6 +17,8 @@ spec:
       parameters:
         - name: app.name
           value: simple-app
+        - name: app.image
+          value: muratozcubukcu/terrahelm-webapp:latest
         - name: app.replicas
           value: "1"
         - name: database.secretName
@@ -42,7 +44,6 @@ spec:
   revisionHistoryLimit: 3
 
 ---
-# Separate PostgreSQL Application
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

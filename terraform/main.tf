@@ -22,7 +22,6 @@ provider "helm" {
   }
 }
 
-# Create namespace for the application
 resource "kubernetes_namespace" "app_namespace" {
   metadata {
     name = var.namespace
@@ -33,7 +32,6 @@ resource "kubernetes_namespace" "app_namespace" {
   }
 }
 
-# Deploy PostgreSQL using Bitnami Helm chart
 resource "helm_release" "postgresql" {
   name       = "postgresql"
   repository = "https://charts.bitnami.com/bitnami"
@@ -48,7 +46,6 @@ resource "helm_release" "postgresql" {
   depends_on = [kubernetes_namespace.app_namespace]
 }
 
-# Deploy application using local Helm chart
 resource "helm_release" "app" {
   name      = var.app_name
   chart     = "${path.module}/../helm-chart"
@@ -64,7 +61,6 @@ resource "helm_release" "app" {
   ]
 }
 
-# Create secret for PostgreSQL connection
 resource "kubernetes_secret" "db_secret" {
   metadata {
     name      = "${var.app_name}-db-secret"

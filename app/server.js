@@ -7,12 +7,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// PostgreSQL connection
 const pool = new Pool({
   host: process.env.POSTGRES_HOST || 'localhost',
   port: process.env.POSTGRES_PORT || 5432,
@@ -24,7 +22,6 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
-// Initialize database
 async function initDatabase() {
   try {
     await pool.query(`
@@ -47,12 +44,10 @@ async function initDatabase() {
   }
 }
 
-// Routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Frontend status API
 app.get('/api/frontend-status', (req, res) => {
   const frontendInfo = {
     status: 'healthy',
@@ -77,21 +72,17 @@ app.get('/api/frontend-status', (req, res) => {
   res.json(frontendInfo);
 });
 
-// Backend connectivity test
 app.get('/api/backend-status', async (req, res) => {
   try {
     const startTime = Date.now();
     
-    // Test database connection
     const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
     const endTime = Date.now();
     
-    // Get recent health checks
     const healthChecks = await pool.query(
       'SELECT * FROM health_checks ORDER BY timestamp DESC LIMIT 10'
     );
     
-    // Get database stats
     const dbStats = await pool.query(`
       SELECT 
         pg_database_size(current_database()) as db_size,
@@ -117,7 +108,6 @@ app.get('/api/backend-status', async (req, res) => {
       }
     };
     
-    // Log health check
     await pool.query(
       'INSERT INTO health_checks (status, message) VALUES ($1, $2)',
       ['success', `API health check - Response time: ${endTime - startTime}ms`]
@@ -141,7 +131,6 @@ app.get('/api/backend-status', async (req, res) => {
   }
 });
 
-// System info API
 app.get('/api/system-info', async (req, res) => {
   try {
     const systemInfo = {
@@ -173,7 +162,6 @@ app.get('/api/system-info', async (req, res) => {
   }
 });
 
-// Health check endpoint
 app.get('/health', async (req, res) => {
   try {
     await pool.query('SELECT 1');
@@ -183,7 +171,6 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Test database write
 app.post('/api/test-write', async (req, res) => {
   try {
     const { message } = req.body;
@@ -205,13 +192,11 @@ app.post('/api/test-write', async (req, res) => {
   }
 });
 
-// Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Unhandled error:', error);
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Initialize and start server
 async function startServer() {
   try {
     await initDatabase();
@@ -228,7 +213,6 @@ async function startServer() {
   }
 }
 
-// Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully');
   await pool.end();

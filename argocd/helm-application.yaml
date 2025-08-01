@@ -19,8 +19,14 @@ spec:
           value: simple-app
         - name: app.image
           value: muratozcubukcu/terrahelm-webapp:latest
+        - name: app.port
+          value: "3000"
         - name: app.replicas
           value: "1"
+        - name: service.port
+          value: "3000"
+        - name: service.targetPort
+          value: "3000"
         - name: database.secretName
           value: simple-app-db-secret
   destination:

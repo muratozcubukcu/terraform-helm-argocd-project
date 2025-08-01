@@ -140,7 +140,6 @@
         }
 
         async function refreshStatus() {
-            // App status
             try {
                 const response = await fetch('/api/frontend-status');
                 if (response.ok) {
@@ -155,7 +154,6 @@
                 setValue('appValue', 'Offline');
             }
 
-            // Database status
             try {
                 const response = await fetch('/api/backend-status');
                 if (response.ok) {
@@ -170,7 +168,6 @@
                 setValue('dbValue', 'Offline');
             }
 
-            // Pod info
             try {
                 const response = await fetch('/api/frontend-status');
                 if (response.ok) {
@@ -187,7 +184,6 @@
             }
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             refreshStatus();
         });

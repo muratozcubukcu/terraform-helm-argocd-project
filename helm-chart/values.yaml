@@ -30,7 +30,7 @@ database:
 cronjobs:
   backup:
     enabled: true
-    schedule: "0 2 * * *"  # Daily at 2 AM
+    schedule: "0 2 * * *"
     image: postgres:15
     restartPolicy: OnFailure
     command: 
@@ -43,7 +43,7 @@ cronjobs:
     
   cleanup:
     enabled: true
-    schedule: "0 4 * * 0"  # Weekly on Sunday at 4 AM
+    schedule: "0 0 * * 0"
     image: busybox:latest
     restartPolicy: OnFailure
     command:
@@ -69,4 +69,4 @@ tolerations: []
 affinity: {}
 
 postgresql:
-  enabled: false  # Deploy PostgreSQL separately via Terraform
+  enabled: false

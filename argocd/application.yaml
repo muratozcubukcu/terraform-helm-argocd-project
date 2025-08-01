@@ -19,7 +19,7 @@ spec:
         - name: TF_VAR_app_name
           value: "simple-app"
         - name: TF_VAR_postgres_password
-          value: "apppassword"  # In production, use a secret manager
+          value: "apppassword"
   destination:
     server: https://kubernetes.default.svc
     namespace: simple-app

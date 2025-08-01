@@ -100,6 +100,51 @@
         .refresh:hover {
             background: #1d4ed8;
         }
+
+        .section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .cronjob-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .cronjob-name {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .cronjob-schedule {
+            color: #6c757d;
+            font-family: monospace;
+        }
+
+        .cronjob-status {
+            margin-top: 5px;
+            font-size: 0.8rem;
+        }
+
+        .status-active {
+            color: #28a745;
+        }
+
+        .status-suspended {
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -125,6 +170,27 @@
                 <div class="status-value" id="podValue">Loading...</div>
             </div>
             
+            <div class="section">
+                <h3>Namespace Resources</h3>
+                <div class="status-item">
+                    <div class="status-label">Services</div>
+                    <div class="status-value" id="servicesValue">Loading...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">CronJobs</div>
+                    <div class="status-value" id="cronjobsValue">Loading...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Pods</div>
+                    <div class="status-value" id="podsValue">Loading...</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>CronJob Details</h3>
+                <div id="cronjobDetails">Loading...</div>
+            </div>
+            
             <button class="refresh" onclick="refreshStatus()">Refresh</button>
         </div>
     </div>
@@ -140,6 +206,7 @@
         }
 
         async function refreshStatus() {
+            // App status
             try {
                 const response = await fetch('/api/frontend-status');
                 if (response.ok) {
@@ -154,6 +221,7 @@
                 setValue('appValue', 'Offline');
             }
 
+            // Database status
             try {
                 const response = await fetch('/api/backend-status');
                 if (response.ok) {
@@ -168,6 +236,7 @@
                 setValue('dbValue', 'Offline');
             }
 
+            // Pod info
             try {
                 const response = await fetch('/api/frontend-status');
                 if (response.ok) {
@@ -181,6 +250,45 @@
             } catch (error) {
                 setStatus('podStatus', 'unhealthy');
                 setValue('podValue', 'Offline');
+            }
+
+            // Namespace info
+            try {
+                const response = await fetch('/api/namespace-info');
+                if (response.ok) {
+                    const data = await response.json();
+                    setValue('servicesValue', data.resources.services);
+                    setValue('cronjobsValue', data.resources.cronjobs);
+                    setValue('podsValue', data.resources.pods);
+                    
+                    // Display cronjob details
+                    const cronjobDetails = document.getElementById('cronjobDetails');
+                    if (data.cronjobs.length > 0) {
+                        cronjobDetails.innerHTML = data.cronjobs.map(cronjob => `
+                            <div class="cronjob-item">
+                                <div class="cronjob-name">${cronjob.name}</div>
+                                <div class="cronjob-schedule">Schedule: ${cronjob.schedule}</div>
+                                <div class="cronjob-status ${cronjob.suspended ? 'status-suspended' : 'status-active'}">
+                                    Status: ${cronjob.suspended ? 'Suspended' : 'Active'}
+                                </div>
+                                ${cronjob.lastScheduleTime ? `<div class="cronjob-status">Last Run: ${new Date(cronjob.lastScheduleTime).toLocaleString()}</div>` : ''}
+                                <div class="cronjob-status">Active Jobs: ${cronjob.activeJobs}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        cronjobDetails.innerHTML = '<div class="cronjob-item">No cronjobs found</div>';
+                    }
+                } else {
+                    setValue('servicesValue', 'Error');
+                    setValue('cronjobsValue', 'Error');
+                    setValue('podsValue', 'Error');
+                    document.getElementById('cronjobDetails').innerHTML = '<div class="cronjob-item">Error loading cronjobs</div>';
+                }
+            } catch (error) {
+                setValue('servicesValue', 'Offline');
+                setValue('cronjobsValue', 'Offline');
+                setValue('podsValue', 'Offline');
+                document.getElementById('cronjobDetails').innerHTML = '<div class="cronjob-item">Unable to load cronjobs</div>';
             }
         }
 

@@ -162,6 +162,59 @@ app.get('/api/system-info', async (req, res) => {
   }
 });
 
+// Namespace resources API
+app.get('/api/namespace-info', async (req, res) => {
+  try {
+    const { exec } = require('child_process');
+    const util = require('util');
+    const execAsync = util.promisify(exec);
+    
+    const namespace = process.env.POD_NAMESPACE || 'simple-app';
+    
+    // Get services
+    const { stdout: servicesOutput } = await execAsync(`kubectl get services -n ${namespace} --no-headers | wc -l`);
+    const servicesCount = parseInt(servicesOutput.trim());
+    
+    // Get cronjobs
+    const { stdout: cronjobsOutput } = await execAsync(`kubectl get cronjobs -n ${namespace} --no-headers | wc -l`);
+    const cronjobsCount = parseInt(cronjobsOutput.trim());
+    
+    // Get pods
+    const { stdout: podsOutput } = await execAsync(`kubectl get pods -n ${namespace} --no-headers | wc -l`);
+    const podsCount = parseInt(podsOutput.trim());
+    
+    // Get detailed cronjob info
+    const { stdout: cronjobsDetail } = await execAsync(`kubectl get cronjobs -n ${namespace} -o json`);
+    const cronjobsData = JSON.parse(cronjobsDetail);
+    
+    const namespaceInfo = {
+      namespace: namespace,
+      resources: {
+        services: servicesCount,
+        cronjobs: cronjobsCount,
+        pods: podsCount
+      },
+      cronjobs: cronjobsData.items.map(cronjob => ({
+        name: cronjob.metadata.name,
+        schedule: cronjob.schedule,
+        suspended: cronjob.spec.suspend || false,
+        lastScheduleTime: cronjob.status?.lastScheduleTime,
+        activeJobs: cronjob.status?.active?.length || 0
+      }))
+    };
+    
+    res.json(namespaceInfo);
+  } catch (error) {
+    console.error('Namespace info error:', error);
+    res.status(500).json({ 
+      error: error.message,
+      namespace: process.env.POD_NAMESPACE || 'simple-app',
+      resources: { services: 0, cronjobs: 0, pods: 0 },
+      cronjobs: []
+    });
+  }
+});
+
 app.get('/health', async (req, res) => {
   try {
     await pool.query('SELECT 1');
